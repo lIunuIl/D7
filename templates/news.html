@@ -1,0 +1,69 @@
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %}
+{% load custom_tags %}
+
+{% block title %}
+News
+{% endblock title %}
+
+{% block content %}
+   <h1>Все новости</h1>
+   <h3>{{ time_now|date:'M d Y' }}</h3>
+
+   <h3> {{ news|length }} </h3>
+
+    <!-- Добавляем форму, которая объединяет набор полей, которые будут отправляться в запросе -->
+    <form action="" method="get">
+        {{ filterset.form.as_p }}
+        <input type="submit" value="Найти" />
+    </form>
+
+   <hr>
+   {% if news %}
+       <table>
+           <tr>
+               <td>Заголовок</td>
+               <td>Дата публикации</td>
+               <td>Автор</td>
+               <td>Категория</td>
+               <td>Текст</td>
+               <td>Рейтинг</td>
+           </tr>
+
+           {% for new in news %}
+           <tr>
+               <td>{{ new.title|censor }}</td>
+               <td>{{ new.dateCreation }}</td>
+               <td>{{ new.author }}</td>
+               <td>{{ new.name }}</td>
+               <td>{{ new.text|truncatechars:20|censor}}</td>
+               <td>{{ new.rating }}</td>
+           </tr>
+           {% endfor %}
+
+       </table>
+   {% else %}
+       <h2>Новостей нет!</h2>
+   {% endif %}
+
+    <!-- Добавление пагинации на страницу -->
+    {% if page_obj.has_previous %}
+        <a href="?{% url_replace page=1 %}">1</a>
+        {% if page_obj.previous_page_number != 1 %}
+            ...
+            <a href="?{% url_replace page=page_obj.previous_page_number %}">{{ page_obj.previous_page_number }}</a>
+        {% endif %}
+    {% endif %}
+    <!-- Информация о текущей странице -->
+    {{ page_obj.number }}
+    <!-- Информация о следующих страницах -->
+    {% if page_obj.has_next %}
+        <a href="?{% url_replace page=page_obj.next_page_number %}">{{ page_obj.next_page_number }}</a>
+        {% if paginator.num_pages != page_obj.next_page_number %}
+            ...
+            <a href="?{% url_replace page=page_obj.paginator.num_pages %}">{{ page_obj.paginator.num_pages }}</a>
+        {% endif %}
+    {% endif %}
+
+{% endblock content %}
